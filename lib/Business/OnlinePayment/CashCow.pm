@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.7 2005-08-03 20:38:31 jonasbn Exp $
+# $Id: CashCow.pm,v 1.8 2005-08-03 20:40:37 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -255,7 +255,7 @@ sub _process_response {
 
 	my $ref = XMLin($page); 
 
-    if ($ref->{order}{errormessage}) {
+    if ($ref->{errormessage}) {
         $self->is_success(0);
     } else {
         $self->is_success(1);
