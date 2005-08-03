@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.9 2005-08-03 20:40:58 jonasbn Exp $
+# $Id: CashCow.pm,v 1.10 2005-08-03 21:09:40 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -598,6 +598,9 @@ or by sending mail to
 =item * Please be aware that the CashCow gateways URLs are not RFC 2396
 compliant, '~' in URLs are not currently supported - might tease during 
 development or similar.
+
+=item * The tests reveal a warning of sorts from Net::SSLeay - it would be nice
+to have this warning eliminated.
 
 =back
 
