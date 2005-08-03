@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.2 2005-08-03 09:43:59 jonasbn Exp $
+# $Id: CashCow.pm,v 1.3 2005-08-03 10:35:47 jonasbn Exp $
 
 use strict;
 use Carp qw(croak);
@@ -21,7 +21,7 @@ sub set_defaults {
     my $self = shift;
 
 	$self->server('cashcow.catpipe.net');
-	$self->path('/auth');
+	$self->path('/auth/');
     $self->port('443');
     $self->{_content}{currency} = 208; #DKK
     
@@ -158,14 +158,14 @@ sub submit {
         phone           => 'cust_phone',
 		fax				=> 'cust_fax',
         email           => 'cust_email',
-        cardnumber      => 'cardnum',
+        card_number     => 'cardnum',
 		exp_date		=> undef,
 		account_number	=> undef,
 		routing_code	=> undef,
 		bank_name		=> undef,
     );
 
-	my ($emonth, $eyear) = $self->{_content} =~ m/^(\d{2})(\d{2})$/;
+	my ($emonth, $eyear) = $self->{_content}{exp_date} =~ m/^(\d{2})(\d{2})$/;
 
     $self->{_content}{emonth} = $emonth;
     $self->{_content}{eyear} = $eyear;
