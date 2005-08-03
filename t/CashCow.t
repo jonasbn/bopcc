@@ -1,15 +1,16 @@
-# $Id: CashCow.t,v 1.1 2005-08-02 22:03:21 jonasbn Exp $
+# $Id: CashCow.t,v 1.2 2005-08-03 09:43:59 jonasbn Exp $
 
 use strict;
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 use constant DEBUG => 0;
 
 use_ok( qw(Business::OnlinePayment::CashCow));
 
-can_ok('Business::OnlinePayment::CashCow', 'submit');
-can_ok('Business::OnlinePayment::CashCow', 'set_defaults');
-can_ok('Business::OnlinePayment::CashCow', 'test_transaction');
+can_ok('Business::OnlinePayment::CashCow', 'submit'); #overloaded
+can_ok('Business::OnlinePayment::CashCow', 'set_defaults'); #overloaded
+can_ok('Business::OnlinePayment::CashCow', 'test_transaction'); #overloaded
+can_ok('Business::OnlinePayment::CashCow', 'remap_fields'); #inherited
 
 use Business::OnlinePayment;
 

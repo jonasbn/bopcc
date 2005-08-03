@@ -1,10 +1,12 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.1 2005-08-02 22:03:21 jonasbn Exp $
+# $Id: CashCow.pm,v 1.2 2005-08-03 09:43:59 jonasbn Exp $
 
 use strict;
 use Carp qw(croak);
 use vars qw($VERSION @ISA);
+
+use Data::Dumper;
 
 use Business::OnlinePayment;
 use Net::SSLeay qw/make_form post_https make_headers/;
@@ -21,32 +23,161 @@ sub set_defaults {
 	$self->server('cashcow.catpipe.net');
 	$self->path('/auth');
     $self->port('443');
+    $self->{_content}{currency} = 208; #DKK
     
     return 1;
+}
+
+sub get_fields {
+    my ($self, @fields) = @_;
+
+	if (DEBUG) {
+		print STDERR "Dumping \@fields in get_fields\n";
+		print STDERR Dumper \@fields;
+	}
+
+    my %content = $self->content();
+    my %new = ();
+    foreach( grep defined $content{$_}, @fields) { $new{$_} = $content{$_}; }
+ 
+ 	if (DEBUG) {
+		print STDERR "Dumping \\\%new in get_fields\n";
+		print STDERR Dumper \%new;
+	}
+ 
+ 	return %new;
+}
+
+sub map_fields {
+    my($self) = @_;
+
+    my %content = $self->content();
+	
+	#setting transaction type
+    $content{'type'} = lc($content{'type'}) || $content{'type'};
+    
+    $self->transaction_type($content{'type'});
+
+    $content{'referer'} = defined( $content{'referer'} )
+                            ? make_headers( 'Referer' => $content{'referer'} )
+                            : "";
+
+    # stuff it back into %content
+    $self->content(%content);
+}
+
+sub remap_fields {
+    my ($self, %map) = @_;
+
+    my %content = $self->content();
+    foreach (keys %map) {
+    	if (! defined $map{$_}) {
+	    	if (DEBUG) {
+	    		print STDERR "Skipping: $_ mapping\n";
+    		}
+    		next;
+    	} else {
+    		if (DEBUG) {
+    			print STDERR "Mapping: $_ to: $map{$_}\n";
+        	}
+        	$content{$map{$_}} = $content{$_};
+		}
+    }
+    $self->content(%content);
 }
 
 sub test_transaction {
 	my ($self, $value) = @_;
 	
 	if ($value) {
-		$self->{'content'}{'TestFlg'} = $value;
+		$self->{'_content'}{'TestFlg'} = $value;
 	}
-	return $self->{'content'}{'TestFlg'};
+	return $self->{'_content'}{'TestFlg'};
 }
 
 sub submit {
     my $self = shift;
 
-	my @fields = qw();
-	my %content;
+	if (DEBUG) {
+		print STDERR "Dumping \$self in submit\n";
+		print STDERR Dumper $self;
+	}
+	
+	my %content = ();
+
+	#setting content action
 	unless ($content{'action'}) {
 		$content{'action'} = 'normal authorization';
 	}
+
+	my @fields = qw(
+		cust_name
+        cust_street
+        cust_city
+		cust_state
+        cust_zip
+		cust_country
+        cust_phone
+		cust_fax
+        cust_email
+        TestFlg
+        currency
+	);
+	my @required_fields = qw(
+ 		cardnum
+ 		emonth
+ 		eyear
+ 		cvc
+ 		amount
+ 		shopid
+ 	);
+
+	#Required by CashCow
+	#cvc
+	#currency
+	#company
+
+	#Special handling
+	#exp_date -> needs split
+
+    $self->remap_fields(
+		type			=> undef,
+		login			=> undef,  
+		password		=> undef,
+		action			=> undef,
+		description		=> undef,
+        amount          => 'amount',
+		invoice_number	=> undef,
+		customer_id		=> undef,
+		name			=> 'cust_name',
+        address         => 'cust_street',
+        city            => 'cust_city',
+		state			=> 'cust_state',
+        zip             => 'cust_zip',
+		country			=> 'cust_country',
+        phone           => 'cust_phone',
+		fax				=> 'cust_fax',
+        email           => 'cust_email',
+        cardnumber      => 'cardnum',
+		exp_date		=> undef,
+		account_number	=> undef,
+		routing_code	=> undef,
+		bank_name		=> undef,
+    );
+
+	my ($emonth, $eyear) = $self->{_content} =~ m/^(\d{2})(\d{2})$/;
+
+    $self->{_content}{emonth} = $emonth;
+    $self->{_content}{eyear} = $eyear;
+
+    $self->required_fields(@required_fields);
+	
+	push @fields, @required_fields;
+	
 	switch (lc($content{'action'})) {
  
 			case ('normal authorization') { $self->_normal_authorization(
 				\@fields,
-				\%content,
 			); }
 			#case ('authorization only' ) { $self->_authorization_only(); }
 			#case ('credit' ) { $self->_credit_authorization(); }
@@ -58,53 +189,57 @@ sub submit {
 }
 
 sub _normal_authorization {
-    my ($self, $fields, $content) = @_;
+    my ($self, $fields) = @_;
+
+	if (DEBUG) {
+		print STDERR "Dumping \$self in _normal_authorization\n";
+		print STDERR Dumper $self;
+
+		print STDERR "Dumping \\\@fields in _normal_authorization\n";
+		print STDERR Dumper $fields;
+	}
 	
-	#Setting transaction type
-	$self->transaction_type($content->{'type'});
-
-    $self->remap_fields(
-        amount            => 'amount',
-        #currency          => '',
-        address           => 'cust_street',
-        city              => 'cust_city',
-        zip               => 'cust_zip',
-        phone             => 'cust_phone',
-        email             => 'cust_email',
-        card_number       => 'cardnum',
-        expiration        => 'x_Exp_Date',
-        cvv2              => 'cvc',
-    );
-
 	#Populating post data based on fields
     my %post_data = $self->get_fields( @{$fields} );
-
+	
 	#Setting test-flag if set
 	$post_data{'TestFlg'} = $self->test_transaction()?1:0;
 	
-
+	print STDERR "################################ HALLLO\n";
+	print STDERR $self->test_transaction()?1:0;
+	
+	
 	if (DEBUG) {
-    	warn "\n$_ => $post_data{$_}\n" for keys %post_data;
+		print STDERR "Dumping \%post_data in _normal_authorization\n";
+		print STDERR Dumper \%post_data;
 	}
 
     my $pd = make_form(%post_data);
-    my $headers = make_headers('Referer' => $content->{'referer'});
+    my $headers = make_headers('Referer' => $self->{'_content'}{'referer'});
     
-#     my ($page, $server_response, %headers) = 
-#     	post_https(
-#     		$self->server(),
-#     		$self->port(),
-#     		$self->path(),
-#     		$headers,
-#     		$pd
-#     	);
+    my ($page, $server_response, %headers) = 
+    	post_https(
+    		$self->server(),
+    		$self->port(),
+    		$self->path(),
+    		$headers,
+    		$pd
+    	);
 
-    my %response;
     if (DEBUG) {
-    	warn "\n$_ => $response{$_}\n" for keys %response;
+    	print STDERR "Dumping \\\$server_response in _normal_authorization\n";
+    	print STDERR Dumper \$server_response;
+
+    	print STDERR "Dumping \\\%headers in _normal_authorization\n";
+    	print STDERR Dumper \%headers;
+    
+    	print STDERR "Dumping \\\$page in _normal_authorization\n";
+    	print STDERR Dumper \$page;
 	}
 
-    if ( $response{'BLAH'} eq '0' ) {
+    my %response;
+
+    if (keys %response) {
         $self->is_success(1);
     } else {
         $self->is_success(0);
@@ -162,7 +297,6 @@ please see to L<Business::CashCow>.
 
 	(**) Not supported by this module at this time.
 
-
 =head2 METHODS
 
 =head3 submit
@@ -181,6 +315,18 @@ This method overloads the similar method in L<Business::OnlinePayment>
 
 It test the B<TestFlg> form field (SEE: 'Original Formfields', below and 'TODO'
 below).
+
+=head3 map_fields
+
+This method overloads the similar method in L<Business::OnlinePayment>
+
+=head3 remap_fields
+
+This method overloads the similar method in L<Business::OnlinePayment>
+
+=head3 get_fields
+
+This method overloads the similar method in L<Business::OnlinePayment>
 
 =head2 DEVELOPERS NOTES
 
