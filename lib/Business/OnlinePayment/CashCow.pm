@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.8 2005-08-03 20:40:37 jonasbn Exp $
+# $Id: CashCow.pm,v 1.9 2005-08-03 20:40:58 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -11,7 +11,7 @@ use XML::Simple;
 use Carp qw(croak);
 use Data::Dumper;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 $VERSION = '0.01';
 @ISA = qw(Business::OnlinePayment);
