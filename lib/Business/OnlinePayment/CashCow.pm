@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.5 2005-08-03 13:52:37 jonasbn Exp $
+# $Id: CashCow.pm,v 1.6 2005-08-03 18:51:31 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -11,7 +11,7 @@ use XML::Simple;
 use Carp qw(croak);
 use Data::Dumper;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 $VERSION = '0.01';
 @ISA = qw(Business::OnlinePayment);
@@ -50,6 +50,7 @@ sub get_fields {
 sub map_fields {
     my($self) = @_;
 
+	#We use accessor in case internal format changes
     my %content = $self->content();
 	
 	#setting transaction type
@@ -68,6 +69,7 @@ sub map_fields {
 sub remap_fields {
     my ($self, %map) = @_;
 
+	#We use accessor in case internal format changes
     my %content = $self->content();
     foreach (keys %map) {
     	if (! defined $map{$_}) {
@@ -131,14 +133,6 @@ sub submit {
  		shopid
  	);
 
-	#Required by CashCow
-	#cvc
-	#currency
-	#company
-
-	#Special handling
-	#exp_date -> needs split
-
     $self->remap_fields(
 		type			=> undef,
 		login			=> undef,  
@@ -171,6 +165,7 @@ sub submit {
 
     $self->required_fields(@required_fields);
 	
+	#Combining the field lists
 	push @fields, @required_fields;
 	
 	if (lc($content{'action'}) eq 'normal authorization') {
@@ -262,14 +257,15 @@ Business::OnlinePayment::CashCow - Online payment processing via CashCow ApS
 
 =head1 SYNOPSIS
 
-	my $transaction = new Business::OnlinePayment("CashCow");
-	$transaction->content(
-						  type       => $cardtype,
-						  amount     => $session->{orderid}{totalamount},
-						  cardnumber => $request->{params}{card_number},
-						  expiration => $exp,
-						  name       => $request->{params}{cardholder_name},
-						 );
+	my $tx = new Business::OnlinePayment("CashCow");
+	$tx->content(
+		type       => 'Visa',
+		currency   => '208',
+		amount     => '1129.50',
+		cardnumber => '123456789012',
+		expiration => '1212',
+		name       => 'Richie Rich',
+	);
 	$transaction->submit();
   
 	if ($transaction->is_success()) {
@@ -446,35 +442,49 @@ differ from shop to shop.
 
 =head3 shopid
 
-This is the shopid configured on the CashCow gateway for the shop you want to 
-access.
+This is the string holding the shopid for the shop configured on the CashCow 
+gateway for the shop you want to access.
 
-I expect this field to be mandatory hence it is needed to complete a
-transaction. 
+This field is regarded to be mandatory hence it is needed to complete a
+transaction - all requests to a CashCow gateway without a shopid is responded
+to with an HTTP response code of 304.
 
 =head3 foreignorderid
 
-I expect this field to be optional.
+This field can be use to hold your own orderid for reference.
+
+This field is regarded as defaulting to optional.
 
 =head3 sessionid
 
-I expect this field to be optional.
+This field can be use to hold a sessionid.
+
+This field is regarded as defaulting to optional.
 
 =head3 cust_name
 
-I expect this field to be optional.
+The customer name (full name) - concatenation might be necessary. Cardholders
+name should go in this field.
+
+This field is regarded as defaulting to optional.
 
 =head3 cust_street
 
-I expect this field to be optional.
+The street of the customer address.
+
+This field is regarded as defaulting to optional.
 
 =head3 cust_zip
 
-I expect this field to be optional.
+The zip code of the customers address.
+
+This field is regarded as defaulting to optional.
 
 =head3 cust_phone
 
-I expect this field to be optional.
+The phonenumber of the customer.
+
+This field is regarded as defaulting to optional.
 
 =head3 cust_email
 
@@ -483,7 +493,7 @@ parameter. It can either be optional or mandatory and you can even have the
 CashCow gateway evaluate the email address with the configuration parameter
 strict which can be set on the gateway.
 
-I expect this field to be optional.
+This field is regarded as defaulting to optional.
 
 =head3 cardnum
 
@@ -506,14 +516,31 @@ transaction.
 
 =head3 cvc
 
-The 3-digit control number on the back of a creditcard.
+The 3- or 4-digit control number on the back of a creditcard. The CashCow 
+gateway refers to this as CVC, but the name actually depends on the card in 
+question, but this module sticks to the name CVC eventhough it might be used 
+for:
+
+=over
+
+=item * CVV2 (Visa)
+
+=item * CVC2 (Mastercard) 
+
+=item * CID (American Express)
+
+=back
 
 I expect this field to be mandatory hence it is needed to complete a
 transaction. 
 
 =head3 amount
 
+The amount should be provided in english notation, do not use locale if it 
+differs from the using . (dot) as separator. (SEE: SYNOPSIS).
 
+I expect this field to be mandatory hence it is needed to complete a
+transaction. 
 
 =head1 TODO
 
@@ -528,6 +555,10 @@ transaction.
 =item * Investigate return values
 
 =item * Investigate test flags (TestFlg)
+
+=item * Make it possible to control what fields are mandatory and optional. This
+        could be done via the optional processor info parameter to the constructor
+        (SEE: B<new>).
 
 =back
 
@@ -564,6 +595,8 @@ development or similar.
 =item * L<http://www.cashcow.dk/>
 
 =item * L<Business::CashCow>
+
+=item * L<http://www.sti.nasa.gov/cvv.html>
 
 =back
 
