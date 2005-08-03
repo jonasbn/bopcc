@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.6 2005-08-03 18:51:31 jonasbn Exp $
+# $Id: CashCow.pm,v 1.7 2005-08-03 20:38:31 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -11,7 +11,7 @@ use XML::Simple;
 use Carp qw(croak);
 use Data::Dumper;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 $VERSION = '0.01';
 @ISA = qw(Business::OnlinePayment);
@@ -22,7 +22,10 @@ sub set_defaults {
 	$self->server('cashcow.catpipe.net');
 	$self->path('/auth/');
     $self->port('443');
-    $self->{_content}{currency} = 208; #DKK
+
+    $self->build_subs(qw( currency referer ));
+
+    $self->currency(208); #DKK
     
     return 1;
 }
@@ -84,6 +87,13 @@ sub remap_fields {
         	$content{$map{$_}} = $content{$_};
 		}
     }
+
+	if (DEBUG) {
+		print STDERR "Dumping \\\%content in remap_fields\n";
+		print STDERR Dumper \%content;
+	}
+
+    # stuff it back into %content
     $self->content(%content);
 }
 
@@ -91,9 +101,9 @@ sub test_transaction {
 	my ($self, $value) = @_;
 	
 	if ($value) {
-		$self->{'_content'}{'TestFlg'} = $value;
+		$self->SUPER::test_transaction($value);
 	}
-	return $self->{'_content'}{'TestFlg'};
+	return $self->SUPER::test_transaction();
 }
 
 sub submit {
@@ -102,13 +112,6 @@ sub submit {
 	if (DEBUG) {
 		print STDERR "Dumping \$self in submit\n";
 		print STDERR Dumper $self;
-	}
-	
-	my %content = ();
-
-	#setting content action
-	unless ($content{'action'}) {
-		$content{'action'} = 'normal authorization';
 	}
 
 	my @fields = qw(
@@ -158,22 +161,41 @@ sub submit {
 		bank_name		=> undef,
     );
 
-	my ($emonth, $eyear) = $self->{_content}{exp_date} =~ m/^(\d{2})(\d{2})$/;
+	#We use accessor in case internal format changes
+    my %content = $self->content();
 
-    $self->{_content}{emonth} = $emonth;
-    $self->{_content}{eyear} = $eyear;
+	#setting content action
+	unless ($content{'action'}) {
+		$content{'action'} = 'normal authorization';
+	}
+	
+	my ($emonth, $eyear) = $content{'exp_date'} =~ m/^(\d{2})(\d{2})$/;
+
+    $content{'emonth'} = $emonth;
+    $content{'eyear'}  = $eyear;
+
+	if (DEBUG) {
+		print STDERR "Dumping \\\%content in submit\n";
+		print STDERR Dumper \%content;
+	}
+
+    # stuff it back into %content
+    $self->content(%content);
 
     $self->required_fields(@required_fields);
 	
 	#Combining the field lists
 	push @fields, @required_fields;
-	
+
+	if (DEBUG) {
+		print STDERR "Dumping \\\@fields in submit\n";
+		print STDERR Dumper \@fields;
+	}
+
 	if (lc($content{'action'}) eq 'normal authorization') {
- 		$self->_normal_authorization(
-				\@fields,
-			);
+ 		$self->_normal_authorization(\@fields);
 	} else { 
-		croak ("unknown action: ".$content{'action'}); 	
+		croak ("unknown action: ".$content{'action'});
 	}
 
 	return 1;
@@ -194,10 +216,7 @@ sub _normal_authorization {
     my %post_data = $self->get_fields( @{$fields} );
 	
 	#Setting test-flag if set
-	$post_data{'TestFlg'} = $self->test_transaction()?1:0;
-	
-	print STDERR $self->test_transaction();
-	
+	$post_data{'TestFlg'} = $self->test_transaction();
 	
 	if (DEBUG) {
 		print STDERR "Dumping \%post_data in _normal_authorization\n";
@@ -205,7 +224,7 @@ sub _normal_authorization {
 	}
 
     my $pd = make_form(%post_data);
-    my $headers = make_headers('Referer' => $self->{'_content'}{'referer'});
+    my $headers = make_headers('Referer' => $self->referer());
     
     my ($page, $server_response, %headers) = 
     	post_https(
@@ -597,6 +616,8 @@ development or similar.
 =item * L<Business::CashCow>
 
 =item * L<http://www.sti.nasa.gov/cvv.html>
+
+=item * L<http://search.cpan.org/src/JASONK/Business-OnlinePayment-2.01/notes_for_module_writers>
 
 =back
 

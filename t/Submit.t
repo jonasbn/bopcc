@@ -1,7 +1,7 @@
-# $Id: Submit.t,v 1.3 2005-08-03 10:35:47 jonasbn Exp $
+# $Id: Submit.t,v 1.4 2005-08-03 20:38:31 jonasbn Exp $
 
 use strict;
-use Test::More qw(no_plan);
+use Test::More tests => 4;
 
 use Business::OnlinePayment;
 use_ok('Business::OnlinePayment::CashCow');
@@ -20,3 +20,5 @@ $tx->content(
 );
 
 ok($tx->submit());
+
+ok($tx->is_success);
