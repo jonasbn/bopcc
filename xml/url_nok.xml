@@ -1,0 +1,23 @@
+<!-- $Id: url_nok.xml,v 1.1 2005-08-03 20:48:31 jonasbn Exp $ -->
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<CUSTOMER>
+		<CUST_NAME>$cust_name</CUSTNAME>
+		<CUST_STREET>$cust_street</CUST_STREET>
+		<CUST_COMPANY>$cust_company</CUST_COMPANY>
+		<CUST_ZIP>$cust_zip</CUST_ZIP>
+		<CUST_CITY>$cust_city</CUST_CITY>
+		<CUST_STATE>$cust_state</CUST_STATE>
+		<CUST_COUNTRY>$cust_country</CUST_COUNTRY>
+		<CUST_PHONE>$cust_phone</CUST_PHONE>
+		<CUST_FAX>$cust_fax</CUST_FAZ>
+		<CUST_EMAIL>$cust_email</CUST_EMAIL>
+	</CUSTOMER>
+	<ORDER>
+		<AMOUNT>$amount</AMOUNT>
+		<ORDERID>$orderid</ORDERID>
+		<SESSION>$sessionid</SESSIONID>
+		<ERRORTYPE>$errortype</ERRORTYPE>
+		<PAYMENTTYPE>$paymenttype</PAYMENTTYPE>
+		<SUBSCRIBE>$subscribe</SUBSCRIBE>
+	</ORDER>
+</XML>
