@@ -1,13 +1,12 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.4 2005-08-03 12:56:38 jonasbn Exp $
+# $Id: CashCow.pm,v 1.5 2005-08-03 13:52:37 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
 
 use Business::OnlinePayment;
 use Net::SSLeay qw(make_form post_https make_headers);
-use Switch;
 use XML::Simple;
 use Carp qw(croak);
 use Data::Dumper;
@@ -174,15 +173,12 @@ sub submit {
 	
 	push @fields, @required_fields;
 	
-	switch (lc($content{'action'})) {
- 
-			case ('normal authorization') { $self->_normal_authorization(
+	if (lc($content{'action'}) eq 'normal authorization') {
+ 		$self->_normal_authorization(
 				\@fields,
-			); }
-			#case ('authorization only' ) { $self->_authorization_only(); }
-			#case ('credit' ) { $self->_credit_authorization(); }
-			#case ('post authorization' ) { $self->_post_authorization();}
-			else { croak ("unknown action: ".$content{'action'}) }
+			);
+	} else { 
+		croak ("unknown action: ".$content{'action'}); 	
 	}
 
 	return 1;

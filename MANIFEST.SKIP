@@ -10,3 +10,9 @@
 ^filegroup$
 \bCVS\b
 ^pm_to_blib$
+^drafts
+^prototypes
+^examples
+\.DS_Store\b
+^_build
+^Build$

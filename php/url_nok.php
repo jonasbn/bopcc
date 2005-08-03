@@ -1,4 +1,4 @@
-<?php echo('<?XML version="1.0" encoding="ISO-8859-1"?>');
+<?php echo('<XML>');
 
 $seek = array(
 	'cust_name',
@@ -18,11 +18,11 @@ $seek = array(
 	'paymenttype',
 	'subscribe'
 );
-while (list($placeholder, $var) = each($seek)) {
-	if (isset($$var)) {
-		$thisval = $$var;
-		$tag = strtoupper($var);
-		print "<$tag>$thisval</$tag>";
+
+while (list($placeholder, $var) = each($_REQUEST)) {
+	if (isset($_REQUEST[$placeholder])) {
+		$tag = strtoupper("$placeholder");
+		echo("<$tag>".$var."</$tag>");
 	}
 }
 ?>
