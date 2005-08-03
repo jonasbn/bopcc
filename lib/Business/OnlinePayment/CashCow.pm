@@ -1,16 +1,16 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.3 2005-08-03 10:35:47 jonasbn Exp $
+# $Id: CashCow.pm,v 1.4 2005-08-03 12:56:38 jonasbn Exp $
 
 use strict;
-use Carp qw(croak);
 use vars qw($VERSION @ISA);
 
-use Data::Dumper;
-
 use Business::OnlinePayment;
-use Net::SSLeay qw/make_form post_https make_headers/;
+use Net::SSLeay qw(make_form post_https make_headers);
 use Switch;
+use XML::Simple;
+use Carp qw(croak);
+use Data::Dumper;
 
 use constant DEBUG => 1;
 
@@ -205,8 +205,7 @@ sub _normal_authorization {
 	#Setting test-flag if set
 	$post_data{'TestFlg'} = $self->test_transaction()?1:0;
 	
-	print STDERR "################################ HALLLO\n";
-	print STDERR $self->test_transaction()?1:0;
+	print STDERR $self->test_transaction();
 	
 	
 	if (DEBUG) {
@@ -226,29 +225,40 @@ sub _normal_authorization {
     		$pd
     	);
 
-    if (DEBUG) {
-    	print STDERR "Dumping \\\$server_response in _normal_authorization\n";
+	return $self->_process_response($page, $server_response, \%headers);
+}
+
+sub _process_response {
+	my ($self, $page, $server_response, $headers) = @_;
+
+	if (DEBUG) {
+    	print STDERR "Dumping \\\$server_response in _process_response\n";
     	print STDERR Dumper \$server_response;
 
-    	print STDERR "Dumping \\\%headers in _normal_authorization\n";
-    	print STDERR Dumper \%headers;
+    	print STDERR "Dumping \\\$headers in _process_response\n";
+    	print STDERR Dumper \$headers;
     
-    	print STDERR "Dumping \\\$page in _normal_authorization\n";
+    	print STDERR "Dumping \\\$page in _process_response\n";
     	print STDERR Dumper \$page;
 	}
 
-    my %response;
 
-    if (keys %response) {
-        $self->is_success(1);
-    } else {
+	my $ref = XMLin($page); 
+
+    if ($ref->{order}{errormessage}) {
         $self->is_success(0);
+    } else {
+        $self->is_success(1);
     }
+
+	return 1;
 }
 
 1;
 
 __END__
+
+=pod
 
 =head1 NAME
 
@@ -277,6 +287,26 @@ Business::OnlinePayment::CashCow - Online payment processing via CashCow ApS
 CashCow ApS is based on the CashCow open source project, which is a C library, 
 please see to L<Business::CashCow>.
 
+The goal of this module is to make a machine to machine credit card
+transactions. CashCow has several options where you can specify URL for handling
+online payments directly using PHP. 
+
+So in order to avoid this layer and still perform transactions this module was 
+initiated. At the same time the module attempts to follow the defacto standard 
+for the modules in the L<Business::OnlinePayment> namespace.
+
+In order to avoid filtering a HTML response two solutions are doable 
+
+Either you can specify the result URLs on the CashCow gateway using the PHP 
+located in the php directory, which output XML, which is more structured and 
+more easily parsed.
+
+If you want to roll your own , please refer to the examples located in the xml 
+directory.
+
+You can also create HTML (or a different XML) output you just need to subclass
+this class and override the _process_response method.
+
 =head2 SUPPORTED TRANSACTION TYPES
 
 	Dankort
@@ -295,13 +325,21 @@ please see to L<Business::CashCow>.
 	(*) To accept this, you need a Merchant Agreement with the card provider in 
 	question.
 
-	(**) Not supported by this module at this time.
+	(**) Not supported by this module at this time (SEE: TODO).
 
 =head2 METHODS
+
+=head3 new 
+
+This method is located in the SUPER class L<Business::OnlinePayment> and 
+returns a Business::OnlinePayment::CashCow object when called with 
+the string CashCow as parameter to the contructor.
 
 =head3 submit
 
 This method is required to be overloaded by L<Business::OnlinePayment>
+
+The method uses HTTPS via L<Net::SSLeay>. 
 
 =head3 set_defaults
 
@@ -328,7 +366,55 @@ This method overloads the similar method in L<Business::OnlinePayment>
 
 This method overloads the similar method in L<Business::OnlinePayment>
 
-=head2 DEVELOPERS NOTES
+=head3 content 
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 is_success 
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 result_code
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 require_avs 
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 transaction_type 
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 error_message 
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 authorization 
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 server 
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 port 
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 path
+
+This method is inherited from L<Business::OnlinePayment>
+
+=head3 _process_response
+
+=head1 DEVELOPERS NOTES
+
+=head2 CashCow
+
+The CashCow system is quite flexible and therefor it is not possible to say
+what fields are mandatory and which are optional, since configurations may
+differ from shop to shop.
 
 =head3 Original Formfields
 
@@ -362,11 +448,86 @@ This method overloads the similar method in L<Business::OnlinePayment>
 
 =back
 
+=head3 shopid
+
+This is the shopid configured on the CashCow gateway for the shop you want to 
+access.
+
+I expect this field to be mandatory hence it is needed to complete a
+transaction. 
+
+=head3 foreignorderid
+
+I expect this field to be optional.
+
+=head3 sessionid
+
+I expect this field to be optional.
+
+=head3 cust_name
+
+I expect this field to be optional.
+
+=head3 cust_street
+
+I expect this field to be optional.
+
+=head3 cust_zip
+
+I expect this field to be optional.
+
+=head3 cust_phone
+
+I expect this field to be optional.
+
+=head3 cust_email
+
+This is the customer email adresse. CashCow has some different options for this
+parameter. It can either be optional or mandatory and you can even have the 
+CashCow gateway evaluate the email address with the configuration parameter
+strict which can be set on the gateway.
+
+I expect this field to be optional.
+
+=head3 cardnum
+
+I expect this field to be mandatory hence it is needed to complete a
+transaction. 
+
+=head3 emonth
+
+The expiration month in two digits, listed on the front of the creditcard.
+
+I expect this field to be mandatory hence it is needed to complete a
+transaction. 
+
+=head3 eyear
+
+The expiration year in two digits, listed on the front of the creditcard.
+
+I expect this field to be mandatory hence it is needed to complete a
+transaction. 
+
+=head3 cvc
+
+The 3-digit control number on the back of a creditcard.
+
+I expect this field to be mandatory hence it is needed to complete a
+transaction. 
+
+=head3 amount
+
+
+
 =head1 TODO
 
 =over
 
-=item * Implement handling of e-dankort
+=item * Implement handling of e-dankort card type
+
+=item * Implement handling of ecredit transactions (default is PBS)
+
+=item * Implement handling of subscribtions
 
 =item * Investigate return values
 
@@ -383,6 +544,16 @@ Please report issues via CPAN RT:
 or by sending mail to
 
   bug-Business-OnlinePayment-CashCow@rt.cpan.org
+
+=head1 CAVEATS
+
+=over
+
+=item * Please be aware that the CashCow gateways URLs are not RFC 2396
+compliant, '~' in URLs are not currently supported - might tease during 
+development or similar.
+
+=back
 
 =head1 SEE ALSO
 
