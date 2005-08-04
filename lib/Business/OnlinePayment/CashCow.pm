@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.10 2005-08-03 21:09:40 jonasbn Exp $
+# $Id: CashCow.pm,v 1.11 2005-08-04 07:46:04 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -615,6 +615,8 @@ to have this warning eliminated.
 =item * L<http://www.cashcowgateway.com/>
 
 =item * L<http://www.cashcow.dk/>
+
+=item * L<http://420.am/business-onlinepayment/>
 
 =item * L<Business::CashCow>
 
