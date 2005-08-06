@@ -1,6 +1,9 @@
-# $Id: Build.PL,v 1.2 2005-08-03 13:52:37 jonasbn Exp $
+# $Id: Build.PL,v 1.3 2005-08-06 17:02:15 jonasbn Exp $
 
 use Module::Build;
+
+my ($shopid);
+
 my $build = Module::Build->new(
 	module_name => 'Business::OnlinePayment::CashCow',
 	license 	=> 'artistic',
@@ -10,9 +13,12 @@ my $build = Module::Build->new(
 	    'Exporter'               	=> 0, #core
 	    'Business::OnlinePayment'   => 0,
 		'Net::SSLeay'				=> 0,
-		'Switch'					=> 0,
 		'XML::Simple'				=> 0,
-   },
-   recursive_test_files => 1,
+	},
+	get_options => {
+    	shop_id => { 
+    		store => \$shopid,
+   	},
+	recursive_test_files => 1,
 );
 $build->create_build_script;

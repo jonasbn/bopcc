@@ -1,6 +1,12 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.2 2005-08-03 20:38:31 jonasbn Exp $
+$Id: Changes,v 1.3 2005-08-06 17:02:15 jonasbn Exp $
+
+Sat Aug  6 2005 (jonasbn)
+
+- Fixed submit test, so we skip if no shopid is provided
+
+- Added shopid flag to Build.PL
 
 Wed Aug  3 2005 (jonasbn)
 
