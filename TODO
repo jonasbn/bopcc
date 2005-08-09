@@ -1,6 +1,6 @@
 TODO file for Business-OnlinePayment-CashCow
 
-$Id: TODO,v 1.2 2005-08-03 20:38:31 jonasbn Exp $
+$Id: TODO,v 1.3 2005-08-09 09:35:44 jonasbn Exp $
 
 * Implement handling of e-dankort card type
 
@@ -8,8 +8,15 @@ $Id: TODO,v 1.2 2005-08-03 20:38:31 jonasbn Exp $
 
 * Implement handling of subscribtions
 
-* Investigate return values
+* Investigate return values and use of: authorization() and result_code()
 
-* Make it possible to control what fields are mandatory and optional.
-  This could be done via the optional processor info parameter to the
-  constructor (SEE: new).
+* Investigate test flags (TestFlg)
+
+* Make it possible to control what fields are mandatory and optional. This
+could be done via the optional processor info parameter to the constructor.
+
+* The tests reveal a warning of sorts from Net::SSLeay - it would be nice
+to have this warning eliminated.
+
+* Some warnings are issued due to redefinition of autoloaded subs built
+by the SUPER class, this would be nice to get out of the way aswell

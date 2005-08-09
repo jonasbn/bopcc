@@ -1,10 +1,10 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.5 2005-08-09 09:30:30 jonasbn Exp $
+$Id: Changes,v 1.6 2005-08-09 09:35:44 jonasbn Exp $
 
 Tue Aug  9 2005 (jonasbn)
 
-- Updated POD
+- Updated POD, README and TODO
 
 - Cleaned the code some more
 
