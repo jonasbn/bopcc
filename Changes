@@ -1,8 +1,12 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.6 2005-08-09 09:35:44 jonasbn Exp $
+$Id: Changes,v 1.7 2005-08-09 09:37:47 jonasbn Exp $
+
+RELEASE 0.01 (released Tue Aug  9 2005)
 
 Tue Aug  9 2005 (jonasbn)
+
+- Added MANIFEST
 
 - Updated POD, README and TODO
 
