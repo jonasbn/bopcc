@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.11 2005-08-04 07:46:04 jonasbn Exp $
+# $Id: CashCow.pm,v 1.12 2005-08-09 08:38:29 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -23,10 +23,8 @@ sub set_defaults {
 	$self->path('/auth/');
     $self->port('443');
 
-    $self->build_subs(qw( currency referer ));
+    $self->build_subs(qw( shopid ));
 
-    $self->currency(208); #DKK
-    
     return 1;
 }
 
@@ -61,10 +59,6 @@ sub map_fields {
     
     $self->transaction_type($content{'type'});
 
-    $content{'referer'} = defined( $content{'referer'} )
-                            ? make_headers( 'Referer' => $content{'referer'} )
-                            : "";
-
     # stuff it back into %content
     $self->content(%content);
 }
@@ -95,15 +89,6 @@ sub remap_fields {
 
     # stuff it back into %content
     $self->content(%content);
-}
-
-sub test_transaction {
-	my ($self, $value) = @_;
-	
-	if ($value) {
-		$self->SUPER::test_transaction($value);
-	}
-	return $self->SUPER::test_transaction();
 }
 
 sub submit {
@@ -164,11 +149,25 @@ sub submit {
 	#We use accessor in case internal format changes
     my %content = $self->content();
 
+	#setting content shopid
+	$content{'shopid'} = $self->shopid();
+
+	#setting content currency
+	if (! $content{'currency'}) {
+		$content{'currency'} = 208;
+	}
+
+	#setting content TestFlg
+	if ($self->test_transaction()) {
+		$content{'TestFlg'} = $self->test_transaction();
+	}
+
 	#setting content action
-	unless ($content{'action'}) {
+	if (! $content{'action'}) {
 		$content{'action'} = 'normal authorization';
 	}
-	
+
+	#setting expiration data (month/year)
 	my ($emonth, $eyear) = $content{'exp_date'} =~ m/^(\d{2})(\d{2})$/;
 
     $content{'emonth'} = $emonth;
@@ -223,35 +222,31 @@ sub _normal_authorization {
 		print STDERR Dumper \%post_data;
 	}
 
-    my $pd = make_form(%post_data);
-    my $headers = make_headers('Referer' => $self->referer());
-    
-    my ($page, $server_response, %headers) = 
-    	post_https(
-    		$self->server(),
-    		$self->port(),
-    		$self->path(),
-    		$headers,
-    		$pd
-    	);
+	my ($page, $server_response, $reply_headers) = 
+		post_https(
+			$self->server(),
+			$self->port(),
+			$self->path(),
+			undef,
+			make_form(%post_data),
+		);
 
-	return $self->_process_response($page, $server_response, \%headers);
+	return $self->_process_response($page, $server_response, $reply_headers);
 }
 
 sub _process_response {
-	my ($self, $page, $server_response, $headers) = @_;
+	my ($self, $page, $server_response, $reply_headers) = @_;
 
 	if (DEBUG) {
     	print STDERR "Dumping \\\$server_response in _process_response\n";
     	print STDERR Dumper \$server_response;
 
-    	print STDERR "Dumping \\\$headers in _process_response\n";
-    	print STDERR Dumper \$headers;
-    
+    	print STDERR "Dumping \\\$reply_headers in _process_response\n";
+    	print STDERR Dumper \$reply_headers;
+
     	print STDERR "Dumping \\\$page in _process_response\n";
     	print STDERR Dumper \$page;
 	}
-
 
 	my $ref = XMLin($page); 
 
@@ -277,9 +272,15 @@ Business::OnlinePayment::CashCow - Online payment processing via CashCow ApS
 =head1 SYNOPSIS
 
 	my $tx = new Business::OnlinePayment("CashCow");
+
+
+	my $tx = new Business::OnlinePayment("CashCow", {
+		shopid   => 'cashcowshopid',
+	});
+
+
 	$tx->content(
 		type       => 'Visa',
-		currency   => '208',
 		amount     => '1129.50',
 		cardnumber => '123456789012',
 		expiration => '1212',
@@ -427,11 +428,28 @@ The CashCow system is quite flexible and therefor it is not possible to say
 what fields are mandatory and which are optional, since configurations may
 differ from shop to shop.
 
+=head3 Processor Options
+
+=over
+
+=item * shopid
+
+=item * currency
+
+=back
+
+=head4 shopid
+
+This is the string holding the shopid for the shop configured on the CashCow 
+gateway for the shop you want to access.
+
+This field is regarded to be mandatory hence it is needed to complete a
+transaction - all requests to a CashCow gateway without a shopid is responded
+to with an HTTP response code of 304.
+
 =head3 Original Formfields
 
 =over 
-
-=item * shopid
 
 =item * foreignorderid
 
@@ -457,16 +475,9 @@ differ from shop to shop.
 
 =item * amount
 
+=item * currency
+
 =back
-
-=head3 shopid
-
-This is the string holding the shopid for the shop configured on the CashCow 
-gateway for the shop you want to access.
-
-This field is regarded to be mandatory hence it is needed to complete a
-transaction - all requests to a CashCow gateway without a shopid is responded
-to with an HTTP response code of 304.
 
 =head3 foreignorderid
 
@@ -561,6 +572,15 @@ differs from the using . (dot) as separator. (SEE: SYNOPSIS).
 I expect this field to be mandatory hence it is needed to complete a
 transaction. 
 
+=head4 currency
+
+This argument can be used to specify the currency. The currency defaults
+to 208, which is the numeric currency code for DKK - Danish Krone.
+
+The numeric codes are defined in: ISO4217
+
+See, SEE ALSO section for references.
+
 =head1 TODO
 
 =over
@@ -576,10 +596,19 @@ transaction.
 =item * Investigate test flags (TestFlg)
 
 =item * Make it possible to control what fields are mandatory and optional. This
-        could be done via the optional processor info parameter to the constructor
-        (SEE: B<new>).
+could be done via the optional processor info parameter to the constructor
+(SEE: B<new>).
+
+=item * The tests reveal a warning of sorts from Net::SSLeay - it would be nice
+to have this warning eliminated.
+
+=item * Some warnings are issued due to redefinition of autoloaded subs built
+by the SUPER class, this would be nice to get out of the way aswell
 
 =back
+
+	t/Submit..........ok 1/6Subroutine shopid redefined at (eval 36) line 1.     
+	Subroutine testflg redefined at (eval 37) line 1.
 
 =head1 BUGS
 
@@ -598,9 +627,6 @@ or by sending mail to
 =item * Please be aware that the CashCow gateways URLs are not RFC 2396
 compliant, '~' in URLs are not currently supported - might tease during 
 development or similar.
-
-=item * The tests reveal a warning of sorts from Net::SSLeay - it would be nice
-to have this warning eliminated.
 
 =back
 
@@ -623,6 +649,12 @@ to have this warning eliminated.
 =item * L<http://www.sti.nasa.gov/cvv.html>
 
 =item * L<http://search.cpan.org/src/JASONK/Business-OnlinePayment-2.01/notes_for_module_writers>
+
+=item * L<Locale::Currency>
+
+=item * L<http://en.wikipedia.org/wiki/ISO_4217>
+
+=item * L<http://www.iso.org/iso/en/prods-services/popstds/currencycodeslist.html>
 
 =back
 

@@ -1,30 +1,29 @@
-# $Id: Submit.t,v 1.5 2005-08-06 17:02:15 jonasbn Exp $
+# $Id: Submit.t,v 1.6 2005-08-09 08:38:29 jonasbn Exp $
 
 use strict;
 use Test::More;
 use Module::Build;
 
-my $build = Module::Build->current;
+my $build  = Module::Build->current;
 my $shopid = $build->notes("shopid");
 
 if (! $shopid) {
 	plan skip_all => 'No CashCow shopid specified skipping tests';	
 } else {
-	plan tests => 4;
+	plan tests => 6;
 }
 
 use Business::OnlinePayment;
 use_ok('Business::OnlinePayment::CashCow');
 
-ok(my $tx = Business::OnlinePayment->new
-	("CashCow", 
-#		{ 
-#			shopid => $shopid; 
-#			TestFlg	    => 1,
-#
-#		}
-	)
+my %processor_options = (
+	shopid  => $shopid,
 );
+
+ok(my $tx = Business::OnlinePayment->new( "CashCow", %processor_options ));
+
+ok($tx->shopid());
+ok($tx->test_transaction(1));
 
 $tx->content(
 	type        => 'VISA',

@@ -1,17 +1,17 @@
 INSTALL file for Business-OnlinePayment-CashCow
 
-$Id: INSTALL,v 1.1 2005-08-02 22:03:21 jonasbn Exp $
+$Id: INSTALL,v 1.2 2005-08-09 08:38:29 jonasbn Exp $
 
 1. tar -xvzf Business-OnlinePayment-CashCow-0.01.tar.gz 
 
 2. cd Business-OnlinePayment-CashCow
 
-3. perl Makefile.PL
+3a. perl Build.PL
 
-4. make
+3b. perl Build.PL --shopid=<your shop id>
 
-5. make test
+4. ./Build test
 
-6. make install (requires privileged access)
+5. ./Build install (requires privileged access)
 
-7. make clean  
+6. ./Build realclean

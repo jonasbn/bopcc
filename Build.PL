@@ -1,8 +1,8 @@
-# $Id: Build.PL,v 1.3 2005-08-06 17:02:15 jonasbn Exp $
+# $Id: Build.PL,v 1.4 2005-08-09 08:38:29 jonasbn Exp $
 
 use Module::Build;
 
-my ($shopid);
+my $shopid;
 
 my $build = Module::Build->new(
 	module_name => 'Business::OnlinePayment::CashCow',
@@ -15,10 +15,13 @@ my $build = Module::Build->new(
 		'Net::SSLeay'				=> 0,
 		'XML::Simple'				=> 0,
 	},
-	get_options => {
-    	shop_id => { 
-    		store => \$shopid,
-   	},
 	recursive_test_files => 1,
 );
+
+my $args_href = $build->args();
+
+if ($args_href->{shopid}) {
+        $build->notes('shopid' => $args_href->{shopid});
+}
+
 $build->create_build_script;
