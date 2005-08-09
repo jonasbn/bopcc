@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.12 2005-08-09 08:38:29 jonasbn Exp $
+# $Id: CashCow.pm,v 1.13 2005-08-09 09:20:26 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -23,9 +23,11 @@ sub set_defaults {
 	$self->path('/auth/');
     $self->port('443');
 
-    $self->build_subs(qw( shopid ));
+	if (! $self->can("shopid")) {
+    	$self->build_subs(qw( shopid ));
+	}
 
-    return 1;
+	return 1;
 }
 
 sub get_fields {
@@ -267,7 +269,7 @@ __END__
 
 =head1 NAME
 
-Business::OnlinePayment::CashCow - Online payment processing via CashCow ApS
+Business::OnlinePayment::CashCow - Online payment processing via CashCow
 
 =head1 SYNOPSIS
 
@@ -286,22 +288,34 @@ Business::OnlinePayment::CashCow - Online payment processing via CashCow ApS
 		expiration => '1212',
 		name       => 'Richie Rich',
 	);
-	$transaction->submit();
-  
-	if ($transaction->is_success()) {
-		return ('OK', { authorizationcode => $transaction->authorization(); } );
+
+
+	$tx->content(
+		type       => 'Visa',
+		amount     => '1129.50',
+		cardnumber => '123456789012',
+		expiration => '1212',
+		name       => 'Richie Rich',
+		currency   => 608, #PHP - Philipine Pesos????
+	);
+
+
+	$tx->submit();
+
+	if ($tx->is_success()) {
+		print "Payment successfull\n";
 	} else {
-	 	return ( 'NOK', { errormessage => $transaction->error_message(); } )
+		print "Error: ".$tx->error_message();
 	}
 
 =head1 DESCRIPTION
 
-CashCow ApS is based on the CashCow open source project, which is a C library, 
-please see to L<Business::CashCow>.
+The CashCow gateway used in this module is the CashCow open source project, 
+which is a C library, please see to L<Business::CashCow>.
 
 The goal of this module is to make a machine to machine credit card
 transactions. CashCow has several options where you can specify URL for handling
-online payments directly using PHP. 
+online payments directly using CGI scripts. 
 
 So in order to avoid this layer and still perform transactions this module was 
 initiated. At the same time the module attempts to follow the defacto standard 
@@ -357,11 +371,11 @@ The method uses HTTPS via L<Net::SSLeay>.
 
 This method overloads the similar method in L<Business::OnlinePayment>
 
-It sets possible default required by the module.
+It sets possible defaults required by Business::OnlinePayment::CashCow.
 
 =head3 test_transaction
 
-This method overloads the similar method in L<Business::OnlinePayment>
+This method is inherited from L<Business::OnlinePayment>
 
 It test the B<TestFlg> form field (SEE: 'Original Formfields', below and 'TODO'
 below).
@@ -370,13 +384,22 @@ below).
 
 This method overloads the similar method in L<Business::OnlinePayment>
 
+This method was overloaded for development reasons only and will eventually
+be removed.
+
 =head3 remap_fields
 
 This method overloads the similar method in L<Business::OnlinePayment>
 
+This method was overloaded for development reasons only and will eventually
+be removed.
+
 =head3 get_fields
 
 This method overloads the similar method in L<Business::OnlinePayment>
+
+This method was overloaded for development reasons only and will eventually
+be removed.
 
 =head3 content 
 
@@ -420,21 +443,22 @@ This method is inherited from L<Business::OnlinePayment>
 
 =head3 _process_response
 
+This is a private method implemented to handle the response, which the author
+recommends to be and XML formatted response.
+
 =head1 DEVELOPERS NOTES
 
 =head2 CashCow
 
-The CashCow system is quite flexible and therefor it is not possible to say
+The CashCow system is quite flexible and therefore it is not possible to say
 what fields are mandatory and which are optional, since configurations may
-differ from shop to shop.
+differ from shop to shop (SEE: TODO).
 
 =head3 Processor Options
 
 =over
 
 =item * shopid
-
-=item * currency
 
 =back
 
@@ -447,7 +471,14 @@ This field is regarded to be mandatory hence it is needed to complete a
 transaction - all requests to a CashCow gateway without a shopid is responded
 to with an HTTP response code of 304.
 
-=head3 Original Formfields
+=head3 Original CashCow Formfields
+
+These fields are the ones provided by the CashCow gateway. This module complies
+with the L<Business::OnlinePayment> API v2. so the API described in this 
+module should be used. But fields listed below can be added to the content
+dataset (SEE: SYNOPSIS) if some extra information is needed - use of some fields 
+however is not recommended since these are redundant with the fields specified
+in the L<Business::OnlinePayment> API.
 
 =over 
 
@@ -479,42 +510,43 @@ to with an HTTP response code of 304.
 
 =back
 
-=head3 foreignorderid
+=head4 foreignorderid
 
 This field can be use to hold your own orderid for reference.
 
-This field is regarded as defaulting to optional.
+This field is regarded as defaulting to optional. Can be used freely.
 
-=head3 sessionid
+=head4 sessionid
 
 This field can be use to hold a sessionid.
 
-This field is regarded as defaulting to optional.
+This field is regarded as defaulting to optional. Can be used freely.
 
-=head3 cust_name
+=head4 cust_name
 
 The customer name (full name) - concatenation might be necessary. Cardholders
 name should go in this field.
 
-This field is regarded as defaulting to optional.
+This field is regarded as defaulting to optional. Please use: B<name> instead.
 
-=head3 cust_street
+=head4 cust_street
 
 The street of the customer address.
 
-This field is regarded as defaulting to optional.
+This field is regarded as defaulting to optional. Please use: B<address> 
+instead.
 
 =head3 cust_zip
 
 The zip code of the customers address.
 
-This field is regarded as defaulting to optional.
+This field is regarded as defaulting to optional. Please use: B<zip> instead.
 
 =head3 cust_phone
 
 The phonenumber of the customer.
 
-This field is regarded as defaulting to optional.
+This field is regarded as defaulting to optional. Please use: B<phone> instead.
 
 =head3 cust_email
 
@@ -523,26 +555,26 @@ parameter. It can either be optional or mandatory and you can even have the
 CashCow gateway evaluate the email address with the configuration parameter
 strict which can be set on the gateway.
 
-This field is regarded as defaulting to optional.
+This field is regarded as defaulting to optional. Please use: B<email> instead.
 
 =head3 cardnum
 
-I expect this field to be mandatory hence it is needed to complete a
-transaction. 
+This field is regarded as defaulting to mandatory. Please use: B<card_number> 
+instead.
 
 =head3 emonth
 
 The expiration month in two digits, listed on the front of the creditcard.
 
-I expect this field to be mandatory hence it is needed to complete a
-transaction. 
+This field is regarded as defaulting to mandatory. Please use: B<expiration> 
+instead.
 
 =head3 eyear
 
 The expiration year in two digits, listed on the front of the creditcard.
 
-I expect this field to be mandatory hence it is needed to complete a
-transaction. 
+This field is regarded as defaulting to mandatory. Please use: B<expiration> 
+instead.
 
 =head3 cvc
 
@@ -561,16 +593,14 @@ for:
 
 =back
 
-I expect this field to be mandatory hence it is needed to complete a
-transaction. 
+This field is regarded as defaulting to mandatory.
 
 =head3 amount
 
 The amount should be provided in english notation, do not use locale if it 
 differs from the using . (dot) as separator. (SEE: SYNOPSIS).
 
-I expect this field to be mandatory hence it is needed to complete a
-transaction. 
+This field is regarded as defaulting to mandatory.
 
 =head4 currency
 

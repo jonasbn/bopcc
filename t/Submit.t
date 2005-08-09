@@ -1,4 +1,4 @@
-# $Id: Submit.t,v 1.6 2005-08-09 08:38:29 jonasbn Exp $
+# $Id: Submit.t,v 1.7 2005-08-09 09:20:26 jonasbn Exp $
 
 use strict;
 use Test::More;
@@ -22,7 +22,7 @@ my %processor_options = (
 
 ok(my $tx = Business::OnlinePayment->new( "CashCow", %processor_options ));
 
-ok($tx->shopid());
+can_ok($tx, "shopid");
 ok($tx->test_transaction(1));
 
 $tx->content(
