@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.13 2005-08-09 09:20:26 jonasbn Exp $
+# $Id: CashCow.pm,v 1.14 2005-08-09 09:30:30 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -232,6 +232,8 @@ sub _normal_authorization {
 			undef,
 			make_form(%post_data),
 		);
+		
+	$self->server_response($server_response);
 
 	return $self->_process_response($page, $server_response, $reply_headers);
 }
@@ -270,6 +272,10 @@ __END__
 =head1 NAME
 
 Business::OnlinePayment::CashCow - Online payment processing via CashCow
+
+=head1 VERSION
+
+This documentation describes version 0.01 of Business::OnlinePayment::CashCow
 
 =head1 SYNOPSIS
 
@@ -454,7 +460,7 @@ The CashCow system is quite flexible and therefore it is not possible to say
 what fields are mandatory and which are optional, since configurations may
 differ from shop to shop (SEE: TODO).
 
-=head3 Processor Options
+=head2 Processor Options
 
 =over
 
@@ -462,7 +468,7 @@ differ from shop to shop (SEE: TODO).
 
 =back
 
-=head4 shopid
+=head3 shopid
 
 This is the string holding the shopid for the shop configured on the CashCow 
 gateway for the shop you want to access.
@@ -471,7 +477,7 @@ This field is regarded to be mandatory hence it is needed to complete a
 transaction - all requests to a CashCow gateway without a shopid is responded
 to with an HTTP response code of 304.
 
-=head3 Original CashCow Formfields
+=head2 Original CashCow Formfields
 
 These fields are the ones provided by the CashCow gateway. This module complies
 with the L<Business::OnlinePayment> API v2. so the API described in this 
@@ -510,26 +516,26 @@ in the L<Business::OnlinePayment> API.
 
 =back
 
-=head4 foreignorderid
+=head3 foreignorderid
 
 This field can be use to hold your own orderid for reference.
 
 This field is regarded as defaulting to optional. Can be used freely.
 
-=head4 sessionid
+=head3 sessionid
 
 This field can be use to hold a sessionid.
 
 This field is regarded as defaulting to optional. Can be used freely.
 
-=head4 cust_name
+=head3 cust_name
 
 The customer name (full name) - concatenation might be necessary. Cardholders
 name should go in this field.
 
 This field is regarded as defaulting to optional. Please use: B<name> instead.
 
-=head4 cust_street
+=head3 cust_street
 
 The street of the customer address.
 
@@ -621,7 +627,7 @@ See, SEE ALSO section for references.
 
 =item * Implement handling of subscribtions
 
-=item * Investigate return values
+=item * Investigate return values and use of: authorization() and result_code()
 
 =item * Investigate test flags (TestFlg)
 
