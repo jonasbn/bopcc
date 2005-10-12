@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.16 2005-10-12 17:33:48 jonasbn Exp $
+# $Id: CashCow.pm,v 1.17 2005-10-12 17:36:20 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -10,7 +10,7 @@ use Net::SSLeay qw(make_form post_https make_headers);
 use XML::Simple;
 use Data::Dumper;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 $VERSION = '0.02';
 @ISA = qw(Business::OnlinePayment);
