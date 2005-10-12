@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.14 2005-08-09 09:30:30 jonasbn Exp $
+# $Id: CashCow.pm,v 1.15 2005-10-12 16:02:48 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -11,7 +11,7 @@ use XML::Simple;
 use Carp qw(croak);
 use Data::Dumper;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 $VERSION = '0.01';
 @ISA = qw(Business::OnlinePayment);
@@ -252,9 +252,16 @@ sub _process_response {
     	print STDERR Dumper \$page;
 	}
 
-	my $ref = XMLin($page); 
+	my $ref;
 
-    if ($ref->{errormessage}) {
+	eval {
+		$ref = XMLin($page);
+	};
+
+	if ($@) {
+		warn "Unable to handle result";
+		$self->is_success(0);
+	} elsif ($ref->{errormessage}) {
         $self->is_success(0);
     } else {
         $self->is_success(1);
@@ -275,7 +282,7 @@ Business::OnlinePayment::CashCow - Online payment processing via CashCow
 
 =head1 VERSION
 
-This documentation describes version 0.01 of Business::OnlinePayment::CashCow
+This documentation describes version 0.02 of Business::OnlinePayment::CashCow
 
 =head1 SYNOPSIS
 
