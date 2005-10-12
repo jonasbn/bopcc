@@ -1,10 +1,22 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.8 2005-10-12 16:02:48 jonasbn Exp $
+$Id: Changes,v 1.9 2005-10-12 17:33:48 jonasbn Exp $
 
 RELEASE 0.02 (HEAD)
 
+Wed Oct 12 (jonasbn)
+
+- Test coverage 98.6% (as close as we get)
+
+- Cleaned out use of Carp
+
+- Small changes to return values (I hate when modules just die/croak)
+
+- Removed: map_fields method
+
 - Added more unit-tests (_process_response.t)
+
+Tue Oct 11 (jonasbn)
 
 - Apparently XML::Simple just dies upon exception, so an eval has been added
   to handle these exceptions - triggered by some weird responses from the 

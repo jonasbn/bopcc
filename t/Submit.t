@@ -1,4 +1,4 @@
-# $Id: Submit.t,v 1.7 2005-08-09 09:20:26 jonasbn Exp $
+# $Id: Submit.t,v 1.8 2005-10-12 17:33:48 jonasbn Exp $
 
 use strict;
 use Test::More;
@@ -10,7 +10,7 @@ my $shopid = $build->notes("shopid");
 if (! $shopid) {
 	plan skip_all => 'No CashCow shopid specified skipping tests';	
 } else {
-	plan tests => 6;
+	plan tests => 8;
 }
 
 use Business::OnlinePayment;
@@ -37,3 +37,26 @@ $tx->content(
 
 ok($tx->submit());
 ok($tx->is_success);
+
+$tx->content(
+	action		=> 'fail',
+	type        => 'VISA',
+	amount      => '1.00',
+	card_number => '5413037279946869',
+	exp_date    => '0112',
+	name        => 'John Doe',
+	cvc		    => '628',
+);
+
+ok(! $tx->submit());
+
+$tx->content(
+	currency    => 208,
+	type        => 'VISA',
+	amount      => '1.00',
+	card_number => '5413037279946869',
+	exp_date    => '0112',
+	name        => 'John Doe',
+	cvc		    => '628',
+);
+ok($tx->submit());

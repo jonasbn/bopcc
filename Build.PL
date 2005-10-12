@@ -1,4 +1,4 @@
-# $Id: Build.PL,v 1.4 2005-08-09 08:38:29 jonasbn Exp $
+# $Id: Build.PL,v 1.5 2005-10-12 17:33:48 jonasbn Exp $
 
 use Module::Build;
 
@@ -8,7 +8,6 @@ my $build = Module::Build->new(
 	module_name => 'Business::OnlinePayment::CashCow',
 	license 	=> 'artistic',
 	requires => {
-	    'Carp'                   	=> 0, #core
 	    'Data::Dumper'           	=> 0, #core
 	    'Exporter'               	=> 0, #core
 	    'Business::OnlinePayment'   => 0,
