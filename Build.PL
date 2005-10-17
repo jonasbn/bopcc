@@ -1,4 +1,4 @@
-# $Id: Build.PL,v 1.5 2005-10-12 17:33:48 jonasbn Exp $
+# $Id: Build.PL,v 1.6 2005-10-17 10:39:52 jonasbn Exp $
 
 use Module::Build;
 
@@ -10,7 +10,7 @@ my $build = Module::Build->new(
 	requires => {
 	    'Data::Dumper'           	=> 0, #core
 	    'Exporter'               	=> 0, #core
-	    'Business::OnlinePayment'   => 0,
+	    'Business::OnlinePayment'   => 0.02,
 		'Net::SSLeay'				=> 0,
 		'XML::Simple'				=> 0,
 	},

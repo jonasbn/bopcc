@@ -1,8 +1,15 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.9 2005-10-12 17:33:48 jonasbn Exp $
+$Id: Changes,v 1.10 2005-10-17 10:39:52 jonasbn Exp $
 
-RELEASE 0.02 (HEAD)
+RELEASE 0.03
+
+- Added version number to prerequisite of Business::OnlinePayment after dealing 
+  with weird problems (segmentation fault) - the host with the problew
+  was running Business::OnlinePayment 0.00???
+
+
+RELEASE 0.02 (released Wed Oct 12 2005)
 
 Wed Oct 12 (jonasbn)
 
