@@ -1,6 +1,19 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.11 2005-10-17 10:41:21 jonasbn Exp $
+$Id: Changes,v 1.12 2005-12-09 20:40:08 jonasbn Exp $
+
+RELEASE 0.04 (released Fri Dec 9 2005)
+
+- Added Module::Build generation of Makefile.PL in Build.PL
+
+- Deleted old Makefile.PL
+
+- Possible fix to broken test:
+	http://www.nntp.perl.org/group/perl.cpan.testers/261408
+	
+  I have not been able to recreate the scenario where the tests breaks, but I 
+  pilfered a bit in the logic so we can handle one more exception
+
 
 RELEASE 0.03 (released Wed Oct 17 2005)
 
@@ -8,6 +21,9 @@ RELEASE 0.03 (released Wed Oct 17 2005)
   with weird problems (segmentation fault) - the host with the problew
   was running Business::OnlinePayment 0.00???
 
+  This have just been a bad version-number parsing, there was a valid version 
+  of Business::OnlinePayment on the platform in question.
+  
 
 RELEASE 0.02 (released Wed Oct 12 2005)
 

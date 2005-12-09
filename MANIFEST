@@ -2,7 +2,6 @@ Build.PL
 Changes
 INSTALL
 lib/Business/OnlinePayment/CashCow.pm
-Makefile.PL
 MANIFEST			This list of files
 META.yml
 php/url_nok.php
@@ -15,3 +14,4 @@ t/pod.t
 t/Submit.t
 TODO
 xml/url_nok.xml
+Makefile.PL
