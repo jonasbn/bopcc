@@ -9,9 +9,8 @@ README
 t/00.load.t
 t/_process_response.t
 t/CashCow.t
-t/pod-coverage.t
-t/pod.t
 t/Submit.t
 TODO
 xml/url_nok.xml
 Makefile.PL
+META.yml

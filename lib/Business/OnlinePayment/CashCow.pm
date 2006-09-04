@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.20 2005-12-09 20:40:08 jonasbn Exp $
+# $Id: CashCow.pm,v 1.21 2006-09-04 20:36:53 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -12,7 +12,7 @@ use Data::Dumper;
 
 use constant DEBUG => 0;
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 @ISA = qw(Business::OnlinePayment);
 
 sub set_defaults {
@@ -244,7 +244,7 @@ sub _process_response {
 	};
 
 	if ($@ or not $ref) {
-		$self->error_message("Unable to handle result from CashCow gateway");
+		$self->error_message("Unable to handle response from CashCow gateway");
 		$self->is_success(0);
 	} else {
 
@@ -252,11 +252,16 @@ sub _process_response {
 			print STDERR Dumper $ref;
 		}
 
-		if ($ref->{errormessage}) {
-			$self->error_message($ref->{errormessage});
-			$self->is_success(0);
+		if (ref $ref eq 'HASH') {
+			if ($ref->{errormessage}) {
+				$self->error_message($ref->{errormessage});
+				$self->is_success(0);
+			} else {
+				$self->is_success(1);
+			}
 		} else {
-			$self->is_success(1);
+			$self->error_message("Malformed response from CashCow gateway");
+			$self->is_success(0);			
 		}
 	}
 

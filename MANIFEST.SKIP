@@ -18,3 +18,5 @@
 ^Build$
 ^docs
 ^bugs
+\.gz\b
+\.kpf\b
