@@ -1,6 +1,9 @@
 TODO file for Business-OnlinePayment-CashCow
 
-$Id: TODO,v 1.4 2005-10-05 12:11:21 jonasbn Exp $
+$Id: TODO,v 1.5 2006-09-06 13:08:29 jonasbn Exp $
+
+* Look into problems with separation between ok and nok, see Changes entry
+  for 0.06
 
 * We might need to require Module::Build 0.2611 (I have experienced problems
   with 0.2609) on FreeBSD the notes do not seem to be stored in _build/notes
