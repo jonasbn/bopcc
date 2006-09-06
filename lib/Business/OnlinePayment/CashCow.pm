@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.21 2006-09-04 20:36:53 jonasbn Exp $
+# $Id: CashCow.pm,v 1.22 2006-09-06 13:02:00 jonasbn Exp $
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -12,7 +12,7 @@ use Data::Dumper;
 
 use constant DEBUG => 0;
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 @ISA = qw(Business::OnlinePayment);
 
 sub set_defaults {
@@ -253,8 +253,8 @@ sub _process_response {
 		}
 
 		if (ref $ref eq 'HASH') {
-			if ($ref->{errormessage}) {
-				$self->error_message($ref->{errormessage});
+			if (my $errormessage = $ref->{errormessage} || $ref->{ERRORTYPE}) {
+				$self->error_message($errormessage);
 				$self->is_success(0);
 			} else {
 				$self->is_success(1);

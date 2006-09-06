@@ -1,6 +1,16 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.13 2006-09-04 20:36:53 jonasbn Exp $
+$Id: Changes,v 1.14 2006-09-06 13:02:00 jonasbn Exp $
+
+RELEASE 0.06 (released Wed Sep  6 2006)
+
+- Fixed problem with handling of CashCow response, it's format for some reason
+  seem to have changed, this highlights one of the more serious problems of 
+  the interaction with CashCow and that is should be the other way around,
+  we should always decline unless we get an ok from CashCow.
+    
+  I will raise the issue with CashCow.
+
 
 RELEASE 0.05 (released Mon Sep  4 2006)
 
