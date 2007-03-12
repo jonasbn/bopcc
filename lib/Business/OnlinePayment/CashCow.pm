@@ -1,11 +1,12 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.22 2006-09-06 13:02:00 jonasbn Exp $
+# $Id: CashCow.pm,v 1.23 2007-03-12 08:05:19 jonasbn Exp $
 
 use strict;
-use vars qw($VERSION @ISA);
+use warnings;
+use vars qw($VERSION);
 
-use Business::OnlinePayment;
+use base 'Business::OnlinePayment';
 use Net::SSLeay qw(make_form post_https make_headers);
 use XML::Simple;
 use Data::Dumper;
@@ -13,259 +14,259 @@ use Data::Dumper;
 use constant DEBUG => 0;
 
 $VERSION = '0.06';
-@ISA = qw(Business::OnlinePayment);
 
 sub set_defaults {
     my $self = shift;
 
-	$self->server('cashcow.catpipe.net');
-	$self->path('/auth/');
+    $self->server('cashcow.catpipe.net');
+    $self->path('/auth/');
     $self->port('443');
 
-	if (! $self->can("shopid")) {
-    	$self->build_subs(qw( shopid ));
-	}
+    if ( !$self->can('shopid') ) {
+        $self->build_subs(qw( shopid ));
+    }
 
-	return 1;
+    return 1;
 }
 
 sub get_fields {
-    my ($self, @fields) = @_;
+    my ( $self, @fields ) = @_;
 
-	if (DEBUG) {
-		print STDERR "Dumping \@fields in get_fields\n";
-		print STDERR Dumper \@fields;
-	}
+    if (DEBUG) {
+        print STDERR "Dumping \@fields in get_fields\n";
+        print STDERR Dumper \@fields;
+    }
 
     my %content = $self->content();
-    my %new = ();
-    foreach( grep defined $content{$_}, @fields) { $new{$_} = $content{$_}; }
- 
- 	if (DEBUG) {
-		print STDERR "Dumping \\\%new in get_fields\n";
-		print STDERR Dumper \%new;
-	}
- 
- 	return %new;
+    my %new     = ();
+    foreach ( grep defined $content{$_}, @fields ) {
+        $new{$_} = $content{$_};
+    }
+
+    if (DEBUG) {
+        print STDERR "Dumping \\\%new in get_fields\n";
+        print STDERR Dumper \%new;
+    }
+
+    return %new;
 }
 
 sub remap_fields {
-    my ($self, %map) = @_;
+    my ( $self, %map ) = @_;
 
-	#We use accessor in case internal format changes
+    #We use accessor in case internal format changes
     my %content = $self->content();
-    foreach (keys %map) {
-    	if (! defined $map{$_}) {
-	    	if (DEBUG) {
-	    		print STDERR "Skipping: $_ mapping\n";
-    		}
-    		next;
-    	} else {
-    		if (DEBUG) {
-    			print STDERR "Mapping: $_ to: $map{$_}\n";
-        	}
-        	$content{$map{$_}} = $content{$_};
-		}
+    foreach ( keys %map ) {
+        if ( !defined $map{$_} ) {
+            if (DEBUG) {
+                print STDERR "Skipping: $_ mapping\n";
+            }
+            next;
+        } else {
+            if (DEBUG) {
+                print STDERR "Mapping: $_ to: $map{$_}\n";
+            }
+            $content{ $map{$_} } = $content{$_};
+        }
     }
 
-	if (DEBUG) {
-		print STDERR "Dumping \\\%content in remap_fields\n";
-		print STDERR Dumper \%content;
-	}
+    if (DEBUG) {
+        print STDERR "Dumping \\\%content in remap_fields\n";
+        print STDERR Dumper \%content;
+    }
 
     # stuff it back into %content
     $self->content(%content);
+
+	return;
 }
 
 sub submit {
     my $self = shift;
 
-	if (DEBUG) {
-		print STDERR "Dumping \$self in submit\n";
-		print STDERR Dumper $self;
-	}
+    if (DEBUG) {
+        print STDERR "Dumping \$self in submit\n";
+        print STDERR Dumper $self;
+    }
 
-	my @fields = qw(
-		cust_name
+    my @fields = qw(
+        cust_name
         cust_street
         cust_city
-		cust_state
+        cust_state
         cust_zip
-		cust_country
+        cust_country
         cust_phone
-		cust_fax
+        cust_fax
         cust_email
         TestFlg
         currency
-	);
-	my @required_fields = qw(
- 		cardnum
- 		emonth
- 		eyear
- 		cvc
- 		amount
- 		shopid
- 	);
-
-    $self->remap_fields(
-		type			=> undef,
-		login			=> undef,  
-		password		=> undef,
-		action			=> undef,
-		description		=> undef,
-        amount          => 'amount',
-		invoice_number	=> undef,
-		customer_id		=> undef,
-		name			=> 'cust_name',
-        address         => 'cust_street',
-        city            => 'cust_city',
-		state			=> 'cust_state',
-        zip             => 'cust_zip',
-		country			=> 'cust_country',
-        phone           => 'cust_phone',
-		fax				=> 'cust_fax',
-        email           => 'cust_email',
-        card_number     => 'cardnum',
-		exp_date		=> undef,
-		account_number	=> undef,
-		routing_code	=> undef,
-		bank_name		=> undef,
+    );
+    my @required_fields = qw(
+        cardnum
+        emonth
+        eyear
+        cvc
+        amount
+        shopid
     );
 
-	#We use accessor in case internal format changes
+    $self->remap_fields(
+        type           => undef,
+        login          => undef,
+        password       => undef,
+        action         => undef,
+        description    => undef,
+        amount         => 'amount',
+        invoice_number => undef,
+        customer_id    => undef,
+        name           => 'cust_name',
+        address        => 'cust_street',
+        city           => 'cust_city',
+        state          => 'cust_state',
+        zip            => 'cust_zip',
+        country        => 'cust_country',
+        phone          => 'cust_phone',
+        fax            => 'cust_fax',
+        email          => 'cust_email',
+        card_number    => 'cardnum',
+        exp_date       => undef,
+        account_number => undef,
+        routing_code   => undef,
+        bank_name      => undef,
+    );
+
+    #We use accessor in case internal format changes
     my %content = $self->content();
 
-	#setting content shopid
-	$content{'shopid'} = $self->shopid();
+    #setting content shopid
+    $content{'shopid'} = $self->shopid();
 
-	#setting content currency
-	if (! $content{'currency'}) {
-		$content{'currency'} = 208;
-	}
+    #setting content currency
+    if ( !$content{'currency'} ) {
+        $content{'currency'} = 208;
+    }
 
-	#setting content TestFlg
-	if ($self->test_transaction()) {
-		$content{'TestFlg'} = $self->test_transaction();
-	}
+    #setting content TestFlg
+    if ( $self->test_transaction() ) {
+        $content{'TestFlg'} = $self->test_transaction();
+    }
 
-	#setting content action
-	if (! $content{'action'}) {
-		$content{'action'} = 'normal authorization';
-	}
+    #setting content action
+    if ( !$content{'action'} ) {
+        $content{'action'} = 'normal authorization';
+    }
 
-	#setting expiration data (month/year)
-	my ($emonth, $eyear) = $content{'exp_date'} =~ m/^(\d{2})(\d{2})$/;
+    #setting expiration data (month/year)
+    my ( $emonth, $eyear ) = $content{'exp_date'} =~ m/^(\d{2})(\d{2})$/;
 
     $content{'emonth'} = $emonth;
     $content{'eyear'}  = $eyear;
 
-	if (DEBUG) {
-		print STDERR "Dumping \\\%content in submit\n";
-		print STDERR Dumper \%content;
-	}
+    if (DEBUG) {
+        print STDERR "Dumping \\\%content in submit\n";
+        print STDERR Dumper \%content;
+    }
 
     # stuff it back into %content
     $self->content(%content);
 
     $self->required_fields(@required_fields);
-	
-	#Combining the field lists
-	push @fields, @required_fields;
 
-	if (DEBUG) {
-		print STDERR "Dumping \\\@fields in submit\n";
-		print STDERR Dumper \@fields;
-	}
+    #Combining the field lists
+    push @fields, @required_fields;
 
-	if (lc($content{'action'}) eq 'normal authorization') {
-		$self->_normal_authorization(\@fields);
-	} else {
-		$self->error_message("unsupported action: ".$content{'action'});
-		return 0;
-	}
+    if (DEBUG) {
+        print STDERR "Dumping \\\@fields in submit\n";
+        print STDERR Dumper \@fields;
+    }
 
-	return 1;
+    if ( lc( $content{'action'} ) eq 'normal authorization' ) {
+        $self->_normal_authorization( \@fields );
+    } else {
+        $self->error_message( "unsupported action: $content{'action'}" );
+        return 0;
+    }
+
+    return 1;
 }
 
 sub _normal_authorization {
-    my ($self, $fields) = @_;
+    my ( $self, $fields ) = @_;
 
-	if (DEBUG) {
-		print STDERR "Dumping \$self in _normal_authorization\n";
-		print STDERR Dumper $self;
+    if (DEBUG) {
+        print STDERR "Dumping \$self in _normal_authorization\n";
+        print STDERR Dumper $self;
 
-		print STDERR "Dumping \\\@fields in _normal_authorization\n";
-		print STDERR Dumper $fields;
-	}
-	
-	#Populating post data based on fields
+        print STDERR "Dumping \\\@fields in _normal_authorization\n";
+        print STDERR Dumper $fields;
+    }
+
+    #Populating post data based on fields
     my %post_data = $self->get_fields( @{$fields} );
-	
-	#Setting test-flag if set
-	$post_data{'TestFlg'} = $self->test_transaction();
-	
-	if (DEBUG) {
-		print STDERR "Dumping \%post_data in _normal_authorization\n";
-		print STDERR Dumper \%post_data;
-	}
 
-	my ($page, $server_response, $reply_headers) = 
-		post_https(
-			$self->server(),
-			$self->port(),
-			$self->path(),
-			undef,
-			make_form(%post_data),
-		);
-		
-	$self->server_response($server_response);
+    #Setting test-flag if set
+    $post_data{'TestFlg'} = $self->test_transaction();
 
-	return $self->_process_response($page, $server_response, $reply_headers);
+    if (DEBUG) {
+        print STDERR "Dumping \%post_data in _normal_authorization\n";
+        print STDERR Dumper \%post_data;
+    }
+
+    my ( $page, $server_response, $reply_headers )
+        = post_https( $self->server(), $self->port(), $self->path(), undef,
+        make_form(%post_data), );
+
+    $self->server_response($server_response);
+
+    return $self->_process_response( $page, $server_response,
+        $reply_headers );
 }
 
 sub _process_response {
-	my ($self, $page, $server_response, $reply_headers) = @_;
+    my ( $self, $page, $server_response, $reply_headers ) = @_;
 
-	if (DEBUG) {
-		print STDERR "Dumping \\\$server_response in _process_response\n";
-		print STDERR Dumper \$server_response;
+    if (DEBUG) {
+        print STDERR "Dumping \\\$server_response in _process_response\n";
+        print STDERR Dumper \$server_response;
 
-		print STDERR "Dumping \\\$reply_headers in _process_response\n";
-		print STDERR Dumper \$reply_headers;
+        print STDERR "Dumping \\\$reply_headers in _process_response\n";
+        print STDERR Dumper \$reply_headers;
 
-		print STDERR "Dumping \\\$page in _process_response\n";
-		print STDERR Dumper \$page;
-	}
+        print STDERR "Dumping \\\$page in _process_response\n";
+        print STDERR Dumper \$page;
+    }
 
-	my $ref;
+    my $ref;
 
-	eval {
-		$ref = XMLin($page);
-	};
+    eval { $ref = XMLin($page); };
 
-	if ($@ or not $ref) {
-		$self->error_message("Unable to handle response from CashCow gateway");
-		$self->is_success(0);
-	} else {
+    if ( $@ or not $ref ) {
+        $self->error_message(
+            'Unable to handle response from CashCow gateway');
+        $self->is_success(0);
+    } else {
 
-		if (DEBUG) {
-			print STDERR Dumper $ref;
-		}
+        if (DEBUG) {
+            print STDERR Dumper $ref;
+        }
 
-		if (ref $ref eq 'HASH') {
-			if (my $errormessage = $ref->{errormessage} || $ref->{ERRORTYPE}) {
-				$self->error_message($errormessage);
-				$self->is_success(0);
-			} else {
-				$self->is_success(1);
-			}
-		} else {
-			$self->error_message("Malformed response from CashCow gateway");
-			$self->is_success(0);			
-		}
-	}
+        if ( ref $ref eq 'HASH' ) {
+            if ( my $errormessage = $ref->{errormessage}
+                || $ref->{ERRORTYPE} )
+            {
+                $self->error_message($errormessage);
+                $self->is_success(0);
+            } else {
+                $self->is_success(1);
+            }
+        } else {
+            $self->error_message('Malformed response from CashCow gateway');
+            $self->is_success(0);
+        }
+    }
 
-	return 1;
+    return 1;
 }
 
 1;
