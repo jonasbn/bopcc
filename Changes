@@ -1,6 +1,19 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.14 2006-09-06 13:02:00 jonasbn Exp $
+$Id: Changes,v 1.15 2007-03-12 07:54:00 jonasbn Exp $
+
+HEAD
+
+- Added Perl::Critic test t/critic.t
+
+- Added kwalitee test, t/kwalitee.t
+
+- Added POD test, t/pod.t
+
+- Added POD coverage test, t/pod-coverage.t
+
+- Updated MANIFEST
+
 
 RELEASE 0.06 (released Wed Sep  6 2006)
 
