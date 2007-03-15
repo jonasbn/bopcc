@@ -1,10 +1,11 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.16 2007-03-12 08:05:19 jonasbn Exp $
+$Id: Changes,v 1.17 2007-03-15 19:47:20 jonasbn Exp $
 
-HEAD
+Release 0.07 - released Thu Mar 15 2007, update not necessary
 
-- Fixed a few obvious Perl::Critic violations and set severity to 5, gentle
+- Fixed a few obvious Perl::Critic violations and set severity in Perl::Critic
+  test to 5, gentle
 
 - Added Perl::Critic test t/critic.t
 
