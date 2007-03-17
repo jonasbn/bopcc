@@ -1,6 +1,12 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.17 2007-03-15 19:47:20 jonasbn Exp $
+$Id: Changes,v 1.18 2007-03-17 17:52:12 jonasbn Exp $
+
+Release 0.08 - released Thu Mar 17 2007, update not necessary
+
+- Fixed bad Perl::Critic test (t/critic.t), should use require not use. So we
+  can catch the exception of Test::Perl::Critic not being installed
+
 
 Release 0.07 - released Thu Mar 15 2007, update not necessary
 

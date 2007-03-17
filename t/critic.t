@@ -12,7 +12,7 @@ use strict;
       plan( skip_all => $msg );
   }
 
-  eval { use Test::Perl::Critic (-severity => 5); };
+  eval { require Test::Perl::Critic; };
 
   if ( $EVAL_ERROR ) {
      my $msg = 'Test::Perl::Critic required to criticise code';
