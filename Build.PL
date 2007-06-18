@@ -1,4 +1,4 @@
-# $Id: Build.PL,v 1.7 2005-12-09 20:40:08 jonasbn Exp $
+# $Id: Build.PL,v 1.8 2007-06-18 10:28:21 jonasbn Exp $
 
 use Module::Build;
 use Module::Build::Compat;
@@ -12,6 +12,7 @@ my $build = Module::Build->new(
 	    'Business::OnlinePayment'   => 0.02,
 		'Net::SSLeay'				=> 0,
 		'XML::Simple'				=> 0,
+		'URI::Escape'				=> 0,
 	},
     create_makefile_pl => 'passthrough',
 	recursive_test_files => 1,

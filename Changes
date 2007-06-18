@@ -1,6 +1,14 @@
 Changes file for Business-OnlinePayment-CashCow
 
-$Id: Changes,v 1.18 2007-03-17 17:52:12 jonasbn Exp $
+$Id: Changes,v 1.19 2007-06-18 10:28:21 jonasbn Exp $
+
+Release 0.09 - released Mon Jun 18 12:27:11 CEST 2007, update recommended
+
+- Fixed bug in handling of XML response, apparently the '&' in a customername
+  was causing parsing trouble, we now URI escape this single character. More
+  work in this is needed, but this fixes an eminent problem in a production
+  environment
+
 
 Release 0.08 - released Thu Mar 17 2007, update not necessary
 

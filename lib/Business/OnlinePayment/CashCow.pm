@@ -1,6 +1,6 @@
 package Business::OnlinePayment::CashCow;
 
-# $Id: CashCow.pm,v 1.25 2007-03-17 17:52:12 jonasbn Exp $
+# $Id: CashCow.pm,v 1.26 2007-06-18 10:28:21 jonasbn Exp $
 
 use strict;
 use warnings;
@@ -9,11 +9,12 @@ use vars qw($VERSION);
 use base 'Business::OnlinePayment';
 use Net::SSLeay qw(make_form post_https make_headers);
 use XML::Simple;
+use URI::Escape;
 use Data::Dumper;
 
 use constant DEBUG => 0;
 
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 sub set_defaults {
     my $self = shift;
@@ -237,9 +238,11 @@ sub _process_response {
         print STDERR Dumper \$page;
     }
 
+
+	my $safe = uri_escape($page, "\x26");
     my $ref;
 
-    eval { $ref = XMLin($page); };
+    eval { $ref = XMLin($safe); };
 
     if ( $@ or not $ref ) {
         $self->error_message(
@@ -251,7 +254,7 @@ sub _process_response {
             print STDERR Dumper $ref;
         }
 
-        if ( ref $ref eq 'HASH' ) {
+        if ( ref $ref eq 'HASH' && defined $ref->{SHOPID} && $ref->{ORDERID} && $ref->{AMOUNT} && $ref->{CURRENCY} && $ref->{CUST_NAME}) {
             if ( my $errormessage = $ref->{errormessage}
                 || $ref->{ERRORTYPE} )
             {
