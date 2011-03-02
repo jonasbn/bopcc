@@ -20,3 +20,4 @@
 ^bugs
 \.gz\b
 \.kpf\b
+^MYMETA.yml$
