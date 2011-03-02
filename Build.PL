@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 use Module::Build;
-use Module::Build::Compat;
 
 my $build = Module::Build->new(
     module_name => 'Business::OnlinePayment::CashCow',
@@ -18,7 +17,7 @@ my $build = Module::Build->new(
         'Test::Kwalitee'          => 0,
         'Test::Perl::Critic'      => 0,
     },
-    create_makefile_pl   => 'passthrough',
+    create_makefile_pl   => 'traditional',
     recursive_test_files => 1,
 );
 
