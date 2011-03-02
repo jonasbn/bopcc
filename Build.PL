@@ -1,5 +1,7 @@
 # $Id: Build.PL,v 1.8 2007-06-18 10:28:21 jonasbn Exp $
 
+use strict;
+use warnings;
 use Module::Build;
 use Module::Build::Compat;
 
