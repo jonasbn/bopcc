@@ -1,8 +1,14 @@
-Changes file for Business-OnlinePayment-CashCow
+Changes file for Business::OnlinePayment::CashCow
 
 $Id: Changes,v 1.19 2007-06-18 10:28:21 jonasbn Exp $
 
-Release 0.09 - released Mon Jun 18 12:27:11 CEST 2007, update recommended
+Project site changelog:
+
+http://logicLAB.jira.com/browse/BOPCC#selectedTab=com.atlassian.jira.plugin.system.project%3Achangelog-panel
+
+0.09 2007-06-18
+
+- Bug fix release, update recommended
 
 - Fixed bug in handling of XML response, apparently the '&' in a customername
   was causing parsing trouble, we now URI escape this single character. More
@@ -10,13 +16,17 @@ Release 0.09 - released Mon Jun 18 12:27:11 CEST 2007, update recommended
   environment
 
 
-Release 0.08 - released Thu Mar 17 2007, update not necessary
+0.08 2007-03-17
+
+- Maintenance release, update not necessary
 
 - Fixed bad Perl::Critic test (t/critic.t), should use require not use. So we
   can catch the exception of Test::Perl::Critic not being installed
 
 
-Release 0.07 - released Thu Mar 15 2007, update not necessary
+0.07 2007-03-15
+
+- Maintenance release, update not necessary
 
 - Fixed a few obvious Perl::Critic violations and set severity in Perl::Critic
   test to 5, gentle
@@ -34,7 +44,9 @@ Release 0.07 - released Thu Mar 15 2007, update not necessary
 - Updated MANIFEST
 
 
-RELEASE 0.06 (released Wed Sep  6 2006)
+0.06 2006-09-06
+
+- Bug fix release, update recommended
 
 - Fixed problem with handling of CashCow response, it's format for some reason
   seem to have changed, this highlights one of the more serious problems of 
@@ -44,7 +56,9 @@ RELEASE 0.06 (released Wed Sep  6 2006)
   I will raise the issue with CashCow.
 
 
-RELEASE 0.05 (released Mon Sep  4 2006)
+0.05 2006-09-04
+
+- Maintenance release, update recommended
 
 - Added some better exception handling of the response from the CashCow gateway
 
@@ -53,7 +67,7 @@ RELEASE 0.05 (released Mon Sep  4 2006)
 - Removed t/pod-coverage.t, obsoleted by Module::Build
 
 
-RELEASE 0.04 (released Fri Dec 9 2005)
+0.04 2005-12-09
 
 - Added Module::Build generation of Makefile.PL in Build.PL
 
@@ -66,7 +80,9 @@ RELEASE 0.04 (released Fri Dec 9 2005)
   pilfered a bit in the logic so we can handle one more exception
 
 
-RELEASE 0.03 (released Wed Oct 17 2005)
+0.03 2005-10-17
+
+- Maintenance release, update not necessary
 
 - Added version number to prerequisite of Business::OnlinePayment after dealing 
   with weird problems (segmentation fault) - the host with the problew
@@ -76,9 +92,9 @@ RELEASE 0.03 (released Wed Oct 17 2005)
   of Business::OnlinePayment on the platform in question.
   
 
-RELEASE 0.02 (released Wed Oct 12 2005)
+0.02 2005-10-12
 
-Wed Oct 12 (jonasbn)
+- Maintenance release, update recommended
 
 - Test coverage 98.6% (as close as we get)
 
@@ -90,16 +106,14 @@ Wed Oct 12 (jonasbn)
 
 - Added more unit-tests (_process_response.t)
 
-Tue Oct 11 (jonasbn)
-
 - Apparently XML::Simple just dies upon exception, so an eval has been added
   to handle these exceptions - triggered by some weird responses from the 
   CashCow gateway
 
 
-RELEASE 0.01 (released Tue Aug  9 2005)
+0.01 2005-08-09
 
-Tue Aug  9 2005 (jonasbn)
+- Initial release
 
 - Added MANIFEST
 
@@ -112,12 +126,6 @@ Tue Aug  9 2005 (jonasbn)
 
 - Cleared out unecessary referer handling
 
-Sat Aug  6 2005 (jonasbn)
-
 - Fixed submit test, so we skip if no shopid is provided
 
 - Added shopid flag to Build.PL
-
-Wed Aug  3 2005 (jonasbn)
-
-- We have a release candidate
