@@ -21,3 +21,4 @@
 \.gz\b
 \.kpf\b
 ^MYMETA.yml$
+^MYMETA\.json$
