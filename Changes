@@ -6,6 +6,24 @@ Project site changelog:
 
 http://logicLAB.jira.com/browse/BOPCC#selectedTab=com.atlassian.jira.plugin.system.project%3Achangelog-panel
 
+0.11 2013-07-30
+
+- Revisited issue [BOPCC-6] cloned to [BOPCC-7]
+
+  https://logiclab.jira.com/browse/BOPCC-6
+  
+
+0.10 2013-07-29
+
+- Fixed up Changes file as part of my Questhub quest adhering to the standard
+  described in: CPAN::Changes::Spec [BOPCC-6]
+
+  Quest: http://questhub.io/realm/perl/quest/51f0fd8e18ba7dcf4b000040
+  Spec: https://metacpan.org/module/CPAN::Changes::Spec
+  
+  https://logiclab.jira.com/browse/BOPCC-6
+
+
 0.09 2007-06-18
 
 - Bug fix release, update recommended
