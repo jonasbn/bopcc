@@ -14,7 +14,7 @@ use Data::Dumper;
 
 use constant DEBUG => 0;
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 sub set_defaults {
     my $self = shift;
