@@ -6,6 +6,14 @@ Project site changelog:
 
 http://logicLAB.jira.com/browse/BOPCC#selectedTab=com.atlassian.jira.plugin.system.project%3Achangelog-panel
 
+HEAD
+
+- Added changes.t automatic assertion of the integrity of the Changes file
+  see also BOPCC-6 [BOPCC-9]
+
+  https://logiclab.jira.com/browse/BOPCC-9
+
+
 0.11 2013-07-30
 
 - Revisited issue [BOPCC-6] cloned to [BOPCC-7]
