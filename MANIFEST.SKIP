@@ -22,3 +22,5 @@
 \.kpf\b
 ^MYMETA.yml$
 ^MYMETA\.json$
+# Github - Travis integration
+\.travis\.yml
